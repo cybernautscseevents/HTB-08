@@ -394,6 +394,18 @@ abstract class AppLocalizations {
   /// **'This is not a Sammati QR code.'**
   String get scan_invalid_qr;
 
+  /// No description provided for @scan_paste_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste the QR text here'**
+  String get scan_paste_hint;
+
+  /// No description provided for @scan_paste_open.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get scan_paste_open;
+
   /// No description provided for @error_unreachable.
   ///
   /// In en, this message translates to:
@@ -501,6 +513,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ledger transaction'**
   String get receipt_tx;
+
+  /// No description provided for @receipt_view_proof.
+  ///
+  /// In en, this message translates to:
+  /// **'View proof'**
+  String get receipt_view_proof;
 
   /// No description provided for @done.
   ///
@@ -662,6 +680,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No connection. Showing last known activity.'**
   String get offline_activity_banner;
+
+  /// No description provided for @proof_headline.
+  ///
+  /// In en, this message translates to:
+  /// **'This access was recorded and locked on the ledger.'**
+  String get proof_headline;
+
+  /// No description provided for @proof_record_hash.
+  ///
+  /// In en, this message translates to:
+  /// **'Record hash'**
+  String get proof_record_hash;
+
+  /// No description provided for @proof_batch_anchor.
+  ///
+  /// In en, this message translates to:
+  /// **'Batch anchor'**
+  String get proof_batch_anchor;
+
+  /// No description provided for @proof_merkle_verified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified ✓'**
+  String get proof_merkle_verified;
+
+  /// No description provided for @proof_merkle_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification failed'**
+  String get proof_merkle_failed;
+
+  /// No description provided for @proof_merkle_checking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking…'**
+  String get proof_merkle_checking;
+
+  /// No description provided for @proof_open_explorer.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in block explorer'**
+  String get proof_open_explorer;
+
+  /// No description provided for @proof_consent_signer.
+  ///
+  /// In en, this message translates to:
+  /// **'Signer (you)'**
+  String get proof_consent_signer;
+
+  /// No description provided for @proof_ledger_head.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledger head'**
+  String get proof_ledger_head;
+
+  /// No description provided for @proof_consent_tx.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction'**
+  String get proof_consent_tx;
+
+  /// No description provided for @proof_loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading proof…'**
+  String get proof_loading;
+
+  /// No description provided for @proof_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load proof. Try again.'**
+  String get proof_failed;
+
+  /// No description provided for @cascade_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Also told'**
+  String get cascade_title;
+
+  /// No description provided for @cascade_waiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting…'**
+  String get cascade_waiting;
+
+  /// No description provided for @cascade_acked.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} s ago'**
+  String cascade_acked(int n);
 }
 
 class _AppLocalizationsDelegate

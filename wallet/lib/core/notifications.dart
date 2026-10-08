@@ -30,10 +30,11 @@ class NotificationService {
 
     int id = 0;
     final now = DateTime.now();
-    for (final f in snapshot.fiduciaries) {
+    for (final f in snapshot.companies) {
       for (final c in f.consents) {
-        if (c.status == ConsentState.active && c.expiresAt > 0) {
-          final expiry = DateTime.fromMillisecondsSinceEpoch(c.expiresAt * 1000);
+        final expiresAt = c.expiresAt;
+        if (c.stateAt(now) == ConsentState.active && expiresAt != null && expiresAt > 0) {
+          final expiry = DateTime.fromMillisecondsSinceEpoch(expiresAt * 1000);
           final reminderTime = expiry.subtract(const Duration(days: 3));
           
           if (reminderTime.isAfter(now)) {

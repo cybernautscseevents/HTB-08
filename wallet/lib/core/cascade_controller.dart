@@ -50,8 +50,11 @@ class _CascadeKey {
   int get hashCode => Object.hash(principal, purposeId);
 }
 
-class CascadeController extends AutoDisposeNotifier<CascadeState> {
-  _CascadeKey get _key => arg as _CascadeKey;
+class CascadeController extends Notifier<CascadeState> {
+  /// Riverpod 3 passes a family argument through the constructor (it was `arg` in Riverpod 2).
+  CascadeController(this._key);
+
+  final _CascadeKey _key;
 
   @override
   CascadeState build() {
@@ -108,15 +111,11 @@ class CascadeController extends AutoDisposeNotifier<CascadeState> {
 
 /// Key: (_CascadeKey). The screen reads it with cascadeProvider((_CascadeKey(principal, purposeId))).
 final cascadeProvider =
-    AutoDisposeNotifierProvider.family<CascadeController, CascadeState, _CascadeKey>(
+    NotifierProvider.autoDispose.family<CascadeController, CascadeState, _CascadeKey>(
   CascadeController.new,
 );
 
-/// Convenience function so callers do not need to import _CascadeKey.
-AutoDisposeNotifierProviderFamily<CascadeController, CascadeState, _CascadeKey> get cascade =>
-    cascadeProvider;
-
 /// Returns the provider for a specific (principal, purposeId) pair.
-AutoDisposeNotifierProvider<CascadeController, CascadeState> cascadeFor(
+NotifierProvider<CascadeController, CascadeState> cascadeFor(
         String principal, String purposeId) =>
     cascadeProvider(_CascadeKey(principal, purposeId));

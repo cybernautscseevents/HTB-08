@@ -59,6 +59,8 @@
   "scan_torch": "Torch",
   "scan_camera_denied": "Allow camera access to scan QR codes.",
   "scan_invalid_qr": "This is not a Sammati QR code.",
+  "scan_paste_hint": "Paste the QR text here",
+  "scan_paste_open": "Open",
   "error_unreachable": "Could not reach Sammati. Check Wi-Fi.",
   "request_gone": "This request is no longer valid. Ask the company for a new QR code.",
   "notice_mismatch": "This notice could not be verified, so nothing was signed. Ask the company for a new QR code.",

@@ -10,6 +10,8 @@ import 'package:sammati/core/core_api.dart';
 import 'package:sammati/core/eip712.dart';
 import 'package:sammati/core/live_events.dart';
 import 'package:sammati/core/notice.dart';
+import 'package:sammati/core/proof.dart';
+import 'package:sammati/core/rights.dart';
 
 const fiduciaryAddress = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8';
 const creditCheckId = '0x707a80a4813eb36bdfb3f3aebdeea292384852e7f680fd128ea1009ac1192b29';
@@ -102,6 +104,31 @@ class FakeCoreApi implements CoreApi {
 
   /// Zero-based index of the grant call that fails, or -1 for none.
   int failGrantAt = -1;
+  // Proofs, cascade and rights (W-07, W-08, W-10): tests that need them set these; the rest never touch them.
+  ConsentProof? consentProof;
+  AccessProof? accessProof;
+  List<CascadeAckRow> cascadeAcks = [];
+  List<RightsRequestRow> rights = [];
+  final List<({String fiduciary, String type, String note})> submittedRights = [];
+
+  @override
+  Future<ConsentProof> getConsentProof(String txHash) async =>
+      consentProof ?? (throw const CoreException(CoreFailure.notFound));
+
+  @override
+  Future<AccessProof> getAccessProof(String entryId) async =>
+      accessProof ?? (throw const CoreException(CoreFailure.notFound));
+
+  @override
+  Future<List<CascadeAckRow>> getCascadeAcks(String principal, String purposeId) async => cascadeAcks;
+
+  @override
+  Future<List<RightsRequestRow>> getRights(String principal) async => rights;
+
+  @override
+  Future<void> submitRightsRequest(String principal, String fiduciary, String type, String note) async {
+    submittedRights.add((fiduciary: fiduciary, type: type, note: note));
+  }
   CoreException grantError = const CoreException(CoreFailure.server);
   CoreException? withdrawError;
 
@@ -230,6 +257,7 @@ class FakeLiveEvents implements LiveEvents {
   final _updates = StreamController<ConsentUpdated>.broadcast();
   final _access = StreamController<ActivityItem>.broadcast();
   final _connection = StreamController<bool>.broadcast();
+  final _cascade = StreamController<CascadeAck>.broadcast();
   bool disposed = false;
 
   @override
@@ -240,6 +268,9 @@ class FakeLiveEvents implements LiveEvents {
 
   @override
   Stream<bool> get connection => _connection.stream;
+
+  @override
+  Stream<CascadeAck> get cascadeUpdates => _cascade.stream;
 
   void emitAccess(ActivityItem item) => _access.add(item);
   void emit(ConsentUpdated event) => _updates.add(event);

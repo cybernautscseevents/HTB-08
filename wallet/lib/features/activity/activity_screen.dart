@@ -303,6 +303,7 @@ class _ActivityRowState extends State<_ActivityRow> with SingleTickerProviderSta
           ),
         ),
       ),
+      ),
     );
   }
 }

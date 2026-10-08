@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/consent_providers.dart';
+import '../../core/consents_controller.dart';
 import '../../core/rights_controller.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../theme/tokens.dart';
@@ -52,7 +52,7 @@ class _RightsFormSheetState extends ConsumerState<RightsFormSheet> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final companies = ref.watch(consentsProvider).snapshot?.fiduciaries ?? [];
+    final companies = ref.watch(consentsProvider).snapshot?.companies ?? [];
 
     return Padding(
       padding: EdgeInsets.only(

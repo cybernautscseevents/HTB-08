@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +8,7 @@ import 'app/router.dart';
 import 'core/consent_providers.dart';
 import 'core/preferences.dart';
 import 'features/scan/camera_scanner_view.dart';
+import 'features/scan/web_scanner_view.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'theme/app_theme.dart';
 
@@ -16,7 +18,9 @@ Future<void> main() async {
   runApp(ProviderScope(
     overrides: [
       sharedPreferencesProvider.overrideWithValue(prefs),
-      scannerViewBuilderProvider.overrideWithValue((context, onCode) => CameraScannerView(onCode: onCode)),
+      scannerViewBuilderProvider.overrideWithValue(
+        (context, onCode) => kIsWeb ? WebScannerView(onCode: onCode) : CameraScannerView(onCode: onCode),
+      ),
     ],
     child: const SammatiApp(),
   ));

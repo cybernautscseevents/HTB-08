@@ -49,6 +49,8 @@
   "scan_torch": "टॉर्च",
   "scan_camera_denied": "QR कोड स्कैन करने के लिए कैमरे की अनुमति दें।",
   "scan_invalid_qr": "यह Sammati का QR कोड नहीं है।",
+  "scan_paste_hint": "यहाँ QR का पाठ पेस्ट करें",
+  "scan_paste_open": "खोलें",
   "error_unreachable": "Sammati तक नहीं पहुँच सके। Wi-Fi जाँचें।",
   "request_gone": "यह अनुरोध अब मान्य नहीं है। कंपनी से नया QR कोड माँगें।",
   "notice_mismatch": "यह सूचना सत्यापित नहीं हो सकी, इसलिए कुछ भी साइन नहीं हुआ। कंपनी से नया QR कोड माँगें।",

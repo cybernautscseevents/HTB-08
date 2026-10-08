@@ -165,6 +165,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scan_invalid_qr => 'This is not a Sammati QR code.';
 
   @override
+  String get scan_paste_hint => 'Paste the QR text here';
+
+  @override
+  String get scan_paste_open => 'Open';
+
+  @override
   String get error_unreachable => 'Could not reach Sammati. Check Wi-Fi.';
 
   @override
@@ -249,6 +255,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receipt_tx => 'Ledger transaction';
+
+  @override
+  String get receipt_view_proof => 'View proof';
 
   @override
   String get done => 'Done';
@@ -378,4 +387,52 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get offline_activity_banner =>
       'No connection. Showing last known activity.';
+
+  @override
+  String get proof_headline =>
+      'This access was recorded and locked on the ledger.';
+
+  @override
+  String get proof_record_hash => 'Record hash';
+
+  @override
+  String get proof_batch_anchor => 'Batch anchor';
+
+  @override
+  String get proof_merkle_verified => 'Verified ✓';
+
+  @override
+  String get proof_merkle_failed => 'Verification failed';
+
+  @override
+  String get proof_merkle_checking => 'Checking…';
+
+  @override
+  String get proof_open_explorer => 'Open in block explorer';
+
+  @override
+  String get proof_consent_signer => 'Signer (you)';
+
+  @override
+  String get proof_ledger_head => 'Ledger head';
+
+  @override
+  String get proof_consent_tx => 'Transaction';
+
+  @override
+  String get proof_loading => 'Loading proof…';
+
+  @override
+  String get proof_failed => 'Could not load proof. Try again.';
+
+  @override
+  String get cascade_title => 'Also told';
+
+  @override
+  String get cascade_waiting => 'Waiting…';
+
+  @override
+  String cascade_acked(int n) {
+    return '$n s ago';
+  }
 }

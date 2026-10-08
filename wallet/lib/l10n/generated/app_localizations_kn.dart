@@ -168,6 +168,12 @@ class AppLocalizationsKn extends AppLocalizations {
   String get scan_invalid_qr => 'ಇದು Sammati QR ಕೋಡ್ ಅಲ್ಲ.';
 
   @override
+  String get scan_paste_hint => 'QR ಪಠ್ಯವನ್ನು ಇಲ್ಲಿ ಅಂಟಿಸಿ';
+
+  @override
+  String get scan_paste_open => 'ತೆರೆಯಿರಿ';
+
+  @override
   String get error_unreachable =>
       'Sammati ಅನ್ನು ತಲುಪಲಾಗಲಿಲ್ಲ. Wi-Fi ಪರಿಶೀಲಿಸಿ.';
 
@@ -250,6 +256,9 @@ class AppLocalizationsKn extends AppLocalizations {
 
   @override
   String get receipt_tx => 'ಲೆಡ್ಜರ್ ವಹಿವಾಟು';
+
+  @override
+  String get receipt_view_proof => 'ಪುರಾವೆ ನೋಡಿ';
 
   @override
   String get done => 'ಮುಗಿಯಿತು';
@@ -376,4 +385,52 @@ class AppLocalizationsKn extends AppLocalizations {
   @override
   String get offline_activity_banner =>
       'ಸಂಪರ್ಕವಿಲ್ಲ. ಕೊನೆಯ ತಿಳಿದ ಚಟುವಟಿಕೆಯನ್ನು ತೋರಿಸಲಾಗುತ್ತಿದೆ.';
+
+  @override
+  String get proof_headline =>
+      'ಈ ಪ್ರವೇಶ ದಾಖಲಾಗಿದೆ ಮತ್ತು ಲೆಡ್ಜರ್‌ನಲ್ಲಿ ಲಾಕ್ ಮಾಡಲಾಗಿದೆ.';
+
+  @override
+  String get proof_record_hash => 'ದಾಖಲೆ ಹ್ಯಾಶ್';
+
+  @override
+  String get proof_batch_anchor => 'ಬ್ಯಾಚ್ ಆಂಕರ್';
+
+  @override
+  String get proof_merkle_verified => 'ಪರಿಶೀಲಿಸಲಾಗಿದೆ ✓';
+
+  @override
+  String get proof_merkle_failed => 'ಪರಿಶೀಲನೆ ವಿಫಲವಾಗಿದೆ';
+
+  @override
+  String get proof_merkle_checking => 'ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ…';
+
+  @override
+  String get proof_open_explorer => 'ಬ್ಲಾಕ್ ಎಕ್ಸ್‌ಪ್ಲೋರರ್‌ನಲ್ಲಿ ತೆರೆಯಿರಿ';
+
+  @override
+  String get proof_consent_signer => 'ಸಹಿ ಮಾಡಿದವರು (ನೀವು)';
+
+  @override
+  String get proof_ledger_head => 'ಲೆಡ್ಜರ್ ಹೆಡ್';
+
+  @override
+  String get proof_consent_tx => 'ವಹಿವಾಟು';
+
+  @override
+  String get proof_loading => 'ಪುರಾವೆ ಲೋಡ್ ಆಗುತ್ತಿದೆ…';
+
+  @override
+  String get proof_failed => 'ಪುರಾವೆ ಲೋಡ್ ಮಾಡಲಾಗಲಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.';
+
+  @override
+  String get cascade_title => 'ಇವರಿಗೂ ತಿಳಿಸಲಾಗಿದೆ';
+
+  @override
+  String get cascade_waiting => 'ಕಾಯುತ್ತಿದೆ…';
+
+  @override
+  String cascade_acked(int n) {
+    return '$n ಸೆಕೆಂಡ್ ಹಿಂದೆ';
+  }
 }

@@ -167,6 +167,12 @@ class AppLocalizationsHi extends AppLocalizations {
   String get scan_invalid_qr => 'यह Sammati का QR कोड नहीं है।';
 
   @override
+  String get scan_paste_hint => 'यहाँ QR का पाठ पेस्ट करें';
+
+  @override
+  String get scan_paste_open => 'खोलें';
+
+  @override
   String get error_unreachable => 'Sammati तक नहीं पहुँच सके। Wi-Fi जाँचें।';
 
   @override
@@ -248,6 +254,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get receipt_tx => 'लेजर लेन-देन';
+
+  @override
+  String get receipt_view_proof => 'प्रमाण देखें';
 
   @override
   String get done => 'हो गया';
@@ -374,4 +383,52 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get offline_activity_banner =>
       'कनेक्शन नहीं है। पिछली ज्ञात गतिविधि दिख रही है।';
+
+  @override
+  String get proof_headline =>
+      'यह एक्सेस रिकॉर्ड किया गया और लेजर पर लॉक किया गया।';
+
+  @override
+  String get proof_record_hash => 'रिकॉर्ड हैश';
+
+  @override
+  String get proof_batch_anchor => 'बैच एंकर';
+
+  @override
+  String get proof_merkle_verified => 'सत्यापित ✓';
+
+  @override
+  String get proof_merkle_failed => 'सत्यापन विफल';
+
+  @override
+  String get proof_merkle_checking => 'जाँच हो रही है…';
+
+  @override
+  String get proof_open_explorer => 'ब्लॉक एक्सप्लोरर में खोलें';
+
+  @override
+  String get proof_consent_signer => 'हस्ताक्षरकर्ता (आप)';
+
+  @override
+  String get proof_ledger_head => 'लेजर हेड';
+
+  @override
+  String get proof_consent_tx => 'लेन-देन';
+
+  @override
+  String get proof_loading => 'प्रमाण लोड हो रहा है…';
+
+  @override
+  String get proof_failed => 'प्रमाण लोड नहीं हो सका। दोबारा कोशिश करें।';
+
+  @override
+  String get cascade_title => 'इन्हें भी बताया गया';
+
+  @override
+  String get cascade_waiting => 'प्रतीक्षा में…';
+
+  @override
+  String cascade_acked(int n) {
+    return '$n सेकंड पहले';
+  }
 }
