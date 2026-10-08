@@ -159,6 +159,8 @@ Leaves = `entry.hash`. Parent = `keccak256(min(a,b) || max(a,b))`. Odd node is p
 | **MediCare+** | Health | `treatment` → Use your records for your treatment. `insurance_claim` → Share records with your insurer for claims. `research` → Use anonymised data for medical research | InsureCo (for `insurance_claim`), ResearchLab (for `research`) |
 | **FoodRush** | Food delivery | `delivery` → Use your location to deliver orders. `ad_targeting` → Personalise ads from your order history. `partner_share` → Share your orders with restaurant partners | AdNetworkZ (for `ad_targeting`) |
 
+Hindi and Kannada titles and descriptions for these nine purposes are drafted for native-speaker review in `docs/copy-hi-kn.md`; until they are applied the seed carries `[hi]` / `[kn]` placeholders.
+
 Required (core) purposes such as `delivery` and `treatment` are marked `required`; the wallet shows them as "needed for the service" but still records and allows withdrawal (withdrawing stops the service use, the UI explains the effect).
 
 Demo principal: one seeded wallet address is not used; the real phone generates its own key. A dedicated demo relayer key pays gas; the seed funds it from the admin account.
