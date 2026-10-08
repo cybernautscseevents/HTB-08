@@ -11,12 +11,13 @@ import {
   type ConsentUpdatedEvent,
   type CreateRequestResponse,
   type NoticePurpose,
+  type RequestNotice,
   type SeedFiduciary,
 } from "@sammati/shared";
 import { StatusChip, HashLabel } from "../../ui";
 import { createConsentRequest } from "../../api";
 import { useConsentUpdated } from "../../ws";
-import { CORE_URL } from "../../core";
+import { CORE_URL, useCoreMode } from "../../core";
 
 interface NewRequestSectionProps {
   company: SeedFiduciary;
@@ -46,6 +47,8 @@ export function NewRequestSection({
 
   // Simulator helper state
   const [simulating, setSimulating] = useState(false);
+  const [simulateError, setSimulateError] = useState<string | null>(null);
+  const mode = useCoreMode();
 
   // Keep selected codes in sync if purposes load later
   if (selectedCodes.length === 0 && purposes.length > 0) {
@@ -55,7 +58,8 @@ export function NewRequestSection({
   // Subscribe to consent.updated WebSocket event
   useConsentUpdated((event) => {
     // If the event is for this fiduciary
-    if (event.fiduciary.toLowerCase() === company.address.toLowerCase()) {
+    // A withdrawal is also a consent.updated: only a grant is "consent received".
+    if (event.status === "Active" && event.fiduciary.toLowerCase() === company.address.toLowerCase()) {
       setConsentStatus("received");
       setReceivedTx(event.txHash);
       setReceivedAt(event.at);
@@ -94,63 +98,58 @@ export function NewRequestSection({
     }
   };
 
-  // Simulate wallet scan & grant for quick browser testing / live demo
+  // A stub-only helper: asks the stub Core for a grant without the wallet. It sends no real signature, and the
+  // stub checks signatures exactly as the real Core does, so Core refuses it and the refusal is shown. The old
+  // version answered a refusal with an invented "consent received" and a hard-coded transaction hash. Real consent
+  // only ever comes from the wallet: this panel then changes when Core's consent.updated event arrives.
   const handleSimulateScan = async () => {
     if (!requestData) return;
     setSimulating(true);
+    setSimulateError(null);
     try {
-      // Fetch request details from Core to get noticeHash
-      const reqRes = await fetch(`${CORE_URL}/v1/requests/${requestData.requestId}?principal=${DEMO_PRINCIPAL}`);
-      const notice = await reqRes.json();
+      const noticeRes = await fetch(`${CORE_URL}/v1/requests/${requestData.requestId}?principal=${DEMO_PRINCIPAL}`);
+      const notice = (await noticeRes.json()) as RequestNotice & { error?: { code: string; message: string } };
+      if (!noticeRes.ok) {
+        setSimulateError(`Core could not load the request (${notice.error?.code ?? `HTTP ${noticeRes.status}`}).`);
+        return;
+      }
+      const purposeId = notice.purposes[0]?.id;
+      if (!purposeId) {
+        setSimulateError("The request has no purposes to grant.");
+        return;
+      }
 
-      // If in stub mode, Core's stub store accepts grants
-      const primaryPurposeId = notice.purposes[0]?.id;
-      if (primaryPurposeId) {
-        // Trigger grant via Core /v1/consents/grant or stub trigger
-        // In stub mode with real Core, the stub emitter also generates consent.updated events.
-        // We can post a demo grant or directly trigger it:
-        const grantPayload = {
+      const grantRes = await fetch(`${CORE_URL}/v1/consents/grant`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           request: {
             principal: DEMO_PRINCIPAL,
             fiduciary: company.address,
-            purposeId: primaryPurposeId,
+            purposeId,
             expiresAt: Math.floor(Date.now() / 1000) + 365 * 86400,
             noticeHash: notice.noticeHash,
             nonce: notice.nonce ?? "0",
             deadline: Math.floor(Date.now() / 1000) + 3600,
           },
-          // Dummy 65-byte signature for demo/stub
-          signature: "0x" + "11".repeat(65),
-        };
-
-        const grantRes = await fetch(`${CORE_URL}/v1/consents/grant`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(grantPayload),
-        });
-
-        if (grantRes.ok) {
-          const body = await grantRes.json();
-          setConsentStatus("received");
-          setReceivedTx(body.txHash);
-          setReceivedAt(Math.floor(Date.now() / 1000));
-        } else {
-          // Fallback: manually update UI state
-          setConsentStatus("received");
-          setReceivedTx("0x4f2a7819cde4791b0198de76ab4102ef19459be1");
-          setReceivedAt(Math.floor(Date.now() / 1000));
-        }
+          signature: "0x" + "11".repeat(65), // unsigned: there is no wallet key here
+        }),
+      });
+      if (!grantRes.ok) {
+        const body = (await grantRes.json().catch(() => null)) as { error?: { code?: string } } | null;
+        setSimulateError(
+          `Core refused the grant (${body?.error?.code ?? `HTTP ${grantRes.status}`}): the console has no wallet key to sign with. ` +
+            "Scan the QR code with the wallet to give consent.",
+        );
+        return;
       }
+      // Accepted: nothing is shown here. The consent.updated event Core pushes is what flips this panel.
     } catch (e) {
-      console.warn("Simulation fallback:", e);
-      setConsentStatus("received");
-      setReceivedTx("0x4f2a7819cde4791b0198de76ab4102ef19459be1");
-      setReceivedAt(Math.floor(Date.now() / 1000));
+      setSimulateError(`Could not reach Core (${e instanceof Error ? e.message : String(e)}).`);
     } finally {
       setSimulating(false);
     }
   };
-
   const qrPayloadString = requestData ? JSON.stringify(requestData.qrPayload) : "";
 
   return (
@@ -280,14 +279,22 @@ export function NewRequestSection({
                     <p className="text-xs text-mute">
                       Listening on WebSocket topic for signed EIP-712 grant on chain.
                     </p>
-                    <button
-                      type="button"
-                      onClick={handleSimulateScan}
-                      disabled={simulating}
-                      className="mt-2 text-xs font-bold text-marigold hover:underline"
-                    >
-                      {simulating ? "Simulating grant…" : "⚡ Simulate wallet scan & grant"}
-                    </button>
+                    {simulateError && (
+                      <p role="alert" className="mt-1 text-xs font-semibold text-block">
+                        {simulateError}
+                      </p>
+                    )}
+                    {mode === "stub" && (
+                      <button
+                        type="button"
+                        onClick={handleSimulateScan}
+                        disabled={simulating}
+                        title="Stub Core only. Real consent comes from the wallet."
+                        className="mt-2 text-xs font-bold text-marigold hover:underline"
+                      >
+                        {simulating ? "Asking Core…" : "Try a grant without the wallet (stub only)"}
+                      </button>
+                    )}
                   </div>
                 )}
 

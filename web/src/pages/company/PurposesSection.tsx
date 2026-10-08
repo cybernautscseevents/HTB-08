@@ -7,6 +7,7 @@
 import { useState, type ReactNode } from "react";
 import type { NoticePurpose, SeedFiduciary } from "@sammati/shared";
 import { DataTable, HashLabel, type Column } from "../../ui";
+import { useCoreMode } from "../../core";
 import { AddPurposeDrawer } from "./AddPurposeDrawer";
 
 interface PurposesSectionProps {
@@ -21,6 +22,10 @@ export function PurposesSection({
   onRefreshPurposes,
 }: PurposesSectionProps): ReactNode {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  // Real Core answers 501 to registering a purpose (the seed registers them on chain), so offer it only where it works.
+  // Until the mode is known nothing is offered, so a click cannot reach the wrong kind of Core.
+  const mode = useCoreMode();
+  const canAddPurpose = mode === "stub";
   const [activeLang, setActiveLang] = useState<"en" | "hi" | "kn">("en");
 
   const columns: Column<NoticePurpose>[] = [
@@ -151,14 +156,21 @@ export function PurposesSection({
             </button>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setDrawerOpen(true)}
-            className="flex items-center gap-2 rounded-row bg-ink px-4 py-2 text-sm font-bold text-paper transition-colors hover:bg-ink/90"
-          >
-            <span className="text-base text-marigold">+</span>
-            Add purpose
-          </button>
+          {canAddPurpose && (
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(true)}
+              className="flex items-center gap-2 rounded-row bg-ink px-4 py-2 text-sm font-bold text-paper transition-colors hover:bg-ink/90"
+            >
+              <span className="text-base text-marigold">+</span>
+              Add purpose
+            </button>
+          )}
+          {mode === "live" && (
+            <span className="text-xs text-mute" title="Purposes are registered on chain by the seed. Registering from the console is not built yet.">
+              Registered on chain by the seed
+            </span>
+          )}
         </div>
       </div>
 
@@ -174,12 +186,14 @@ export function PurposesSection({
       </div>
 
       {/* Add Purpose Drawer */}
-      <AddPurposeDrawer
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        company={company}
-        onPurposeAdded={onRefreshPurposes}
-      />
+      {canAddPurpose && (
+        <AddPurposeDrawer
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          company={company}
+          onPurposeAdded={onRefreshPurposes}
+        />
+      )}
     </div>
   );
 }

@@ -28,3 +28,13 @@ export function useCoreStatus(intervalMs = 5000): CoreStatus {
   }, [intervalMs]);
   return status;
 }
+
+/**
+ * Which Core this console is talking to: "stub" (fixtures, no chain), "live" (the real one), or null while it is
+ * not yet known or Core is down. Features that only the stub can do, or only the real Core, key off this and stay
+ * hidden until it is known, so a click can never reach the wrong kind of Core.
+ */
+export function useCoreMode(): HealthResponse["mode"] | null {
+  const status = useCoreStatus();
+  return status.state === "up" ? status.mode : null;
+}

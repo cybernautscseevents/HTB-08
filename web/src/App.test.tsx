@@ -77,7 +77,7 @@ describe("routes", () => {
     // Click Purposes
     fireEvent.click(document.getElementById("rail-purposes")!);
     expect(screen.getByRole("heading", { level: 2, name: /Purposes Registry/i })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /\+ Add purpose/i })).toBeTruthy();
+    expect(await screen.findByRole("button", { name: /Add purpose/i })).toBeTruthy(); // offered once Core says it is the stub
 
     // Click New request
     fireEvent.click(document.getElementById("rail-new-request")!);

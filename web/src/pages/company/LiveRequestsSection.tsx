@@ -10,6 +10,7 @@
 import { useState, useMemo, type ReactNode } from "react";
 import {
   DEMO_PRINCIPAL,
+  REASON_CODES,
   type AccessReason,
   type Decision,
   type SeedFiduciary,
@@ -129,6 +130,7 @@ export function LiveRequestsSection({
 }: LiveRequestsSectionProps): ReactNode {
   const [targetPrincipal, setTargetPrincipal] = useState(DEMO_PRINCIPAL);
   const [firingPurpose, setFiringPurpose] = useState<string | null>(null);
+  const [fireError, setFireError] = useState<string | null>(null);
   const [lastFireResult, setLastFireResult] = useState<{
     purposeCode: string;
     endpoint: string;
@@ -144,24 +146,36 @@ export function LiveRequestsSection({
 
   const buttons = COMPANY_BUTTONS[company.slug] ?? COMPANY_BUTTONS.quickloan!;
 
+  /**
+   * The browser calls the company's own guarded endpoint, so the gateway SDK decides and logs. Only if the
+   * request cannot be made at all (a network error) does Core make it instead. Any answer the company does
+   * give that is not a clear ALLOWED (200) or BLOCKED (451 with a reason code) is shown as an error: hiding
+   * a crashed or misconfigured company app behind a simulated result would make the demo lie.
+   */
   const handleFire = async (btn: SimulatorButtonConfig) => {
     setFiringPurpose(btn.purposeCode);
+    setFireError(null);
     const [method, path] = btn.endpoint.split(" ");
     const companyUrl = `http://localhost:${company.port}${path}`;
 
     try {
-      // 1. Hit the real company guarded backend directly
-      const res = await fetch(companyUrl, {
-        method: method || "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "x-sammati-principal": targetPrincipal,
-        },
-        body: method === "POST" ? JSON.stringify({ principal: targetPrincipal }) : undefined,
-      });
+      let res: Response;
+      try {
+        res = await fetch(companyUrl, {
+          method: method || "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "x-sammati-principal": targetPrincipal,
+          },
+          body: method === "POST" ? JSON.stringify({ principal: targetPrincipal }) : undefined,
+        });
+      } catch {
+        await fireThroughCore(btn);
+        return;
+      }
 
       if (res.status === 200) {
-        const payload = await res.json();
+        const payload: unknown = await res.json().catch(() => undefined);
         setLastFireResult({
           purposeCode: btn.purposeCode,
           endpoint: btn.endpoint,
@@ -170,44 +184,58 @@ export function LiveRequestsSection({
           payload,
           statusText: "HTTP 200 OK — Consent valid",
         });
-      } else if (res.status === 451) {
-        const errData = await res.json();
+        return;
+      }
+
+      const errData = (await res.json().catch(() => null)) as { code?: string } | null;
+      if (res.status === 451 && errData?.code && (REASON_CODES as readonly string[]).includes(errData.code)) {
         setLastFireResult({
           purposeCode: btn.purposeCode,
           endpoint: btn.endpoint,
           decision: "BLOCKED",
-          reason: (errData.code as AccessReason) || "CONSENT_WITHDRAWN",
+          reason: errData.code as AccessReason,
           payload: errData,
           statusText: `HTTP 451 Unavailable For Legal Reasons — ${errData.code}`,
         });
-      } else {
-        throw new Error(`Unexpected status ${res.status}`);
+        return;
       }
-    } catch {
-      // 2. Fallback to Core demoFire if company server is not currently running
-      try {
-        const coreRes = await demoFire({
-          fiduciary: company.address,
-          purposeCode: btn.purposeCode,
-          principal: targetPrincipal,
-          endpoint: btn.endpoint,
-        });
-        setLastFireResult({
-          purposeCode: btn.purposeCode,
-          endpoint: btn.endpoint,
-          decision: coreRes.decision,
-          reason: coreRes.reason,
-          entryId: coreRes.entryId,
-          statusText: `Core fallback (${coreRes.decision})`,
-        });
-      } catch (err) {
-        console.error("Fire failed:", err);
-      }
+
+      setLastFireResult(null);
+      setFireError(
+        `${company.name}'s backend answered HTTP ${res.status} for ${btn.endpoint}` +
+          `${res.status === 451 ? " without a reason code" : ""}, so the gateway made no decision. ` +
+          "Check the company app's log (it may have crashed or be misconfigured).",
+      );
     } finally {
       setFiringPurpose(null);
     }
   };
 
+  /** The company's backend could not be reached from this browser: ask Core to make the request for us. */
+  const fireThroughCore = async (btn: SimulatorButtonConfig) => {
+    try {
+      const coreRes = await demoFire({
+        fiduciary: company.address,
+        purposeCode: btn.purposeCode,
+        principal: targetPrincipal,
+        endpoint: btn.endpoint,
+      });
+      setLastFireResult({
+        purposeCode: btn.purposeCode,
+        endpoint: btn.endpoint,
+        decision: coreRes.decision,
+        reason: coreRes.reason,
+        entryId: coreRes.entryId,
+        statusText: `Core made the request (${coreRes.decision}): ${company.name}'s backend was not reachable from this browser`,
+      });
+    } catch (err) {
+      setLastFireResult(null);
+      setFireError(
+        `${company.name}'s backend is not reachable, and Core could not make the request either` +
+          `${err instanceof Error && err.message ? ` (${err.message})` : ""}. Is the company app running?`,
+      );
+    }
+  };
   const filteredLogs = useMemo(() => {
     if (feedFilter === "allowed") {
       return accessLogs.filter((l) => l.decision === "ALLOWED");
@@ -303,6 +331,12 @@ export function LiveRequestsSection({
             })}
           </div>
 
+          {/* A request that could not be decided at all: never dressed up as ALLOWED or BLOCKED */}
+          {fireError && (
+            <div role="alert" className="rounded-pass border border-block/30 bg-block/5 p-4 text-sm font-semibold text-block">
+              {fireError}
+            </div>
+          )}
           {/* Last Fire Feedback */}
           {lastFireResult && (
             <div
@@ -332,6 +366,9 @@ export function LiveRequestsSection({
               <div className="mt-1 text-[11px] text-mute font-mono">
                 Endpoint: {lastFireResult.endpoint}
               </div>
+              {lastFireResult.statusText && (
+                <div className="mt-1 text-[11px] text-mute">{lastFireResult.statusText}</div>
+              )}
               {lastFireResult.payload ? (
                 <div className="mt-3 border-t border-line/40 pt-2">
                   <div className="text-[10px] font-bold uppercase tracking-wider text-mute mb-1">
