@@ -287,12 +287,13 @@ export function createApp(o: AppOptions): Express {
     }
   });
 
-  /** Only the rows of the customer id that was typed in: never the company's whole customer list. */
+  /** One customer's own rows, never the company's customer list: both the typed id and the customer's address are needed. */
   app.get("/portal/consents", async (req, res) => {
     const alias = typeof req.query.alias === "string" ? req.query.alias : "";
-    if (!alias || alias.length > 40) return void res.status(400).json({ error: { code: "BAD_REQUEST", message: "Send the customer id as ?alias=." } });
+    const principal = typeof req.query.principal === "string" ? req.query.principal.toLowerCase() : "";
+    if (!alias || alias.length > 40 || !ADDRESS.test(principal)) return void res.status(400).json({ error: { code: "BAD_REQUEST", message: "Send the customer id and address as ?alias=&principal=." } });
     try {
-      const rows = (await sammati.consentRows()).filter((r) => r.customerAlias === alias).map(({ principal, customerAlias, purposeCode, status, expiresAt }) => ({ principal, customerAlias, purposeCode, status, expiresAt }));
+      const rows = (await sammati.consentRows()).filter((r) => r.customerAlias === alias && r.principal.toLowerCase() === principal).map(({ principal, customerAlias, purposeCode, status, expiresAt }) => ({ principal, customerAlias, purposeCode, status, expiresAt }));
       res.json({ rows });
     } catch {
       res.status(503).json({ error: { code: "LEDGER_UNAVAILABLE", message: "Sammati could not be reached." } });

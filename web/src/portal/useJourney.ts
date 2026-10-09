@@ -37,8 +37,8 @@ export function makeBrowserDeps(company: PortalCompany, lenderUrl: string = LEND
     if (!res.ok || !body?.requestId) throw new Error(body?.error?.message ?? `Sammati answered ${res.status}`);
     return { requestId: body.requestId, qrPayload: body.qrPayload };
   },
-  async consentRows(alias) {
-    const url = viaCompany ? `${lenderUrl}/portal/consents?alias=${encodeURIComponent(alias ?? "")}` : `${CORE_URL}/v1/fiduciaries/${company.address}/consents`;
+  async consentRows(alias, principal) {
+    const url = viaCompany ? `${lenderUrl}/portal/consents?alias=${encodeURIComponent(alias ?? "")}&principal=${encodeURIComponent(principal ?? "")}` : `${CORE_URL}/v1/fiduciaries/${company.address}/consents`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Sammati answered ${res.status}`);
     return ((await json(res)) as FiduciaryConsentsResponse).rows;

@@ -53,6 +53,7 @@ dependencies:
   timezone: ^0.9.4
   # X25519, HKDF-SHA256 and AES-256-GCM for the vault envelope (trd.md §4.4); pure Dart, so it also runs on web.
   cryptography: ^2.7.0
+  image_picker: ^1.2.4
 
 dev_dependencies:
   flutter_test:

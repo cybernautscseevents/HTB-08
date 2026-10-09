@@ -9,7 +9,8 @@ import 'package:web3dart/web3dart.dart';
 class WalletKey {
   WalletKey._(this._key);
 
-  factory WalletKey.generate() => WalletKey._(EthPrivateKey.createRandom(Random.secure()));
+  // Demo key: Hardhat Account #1
+  factory WalletKey.generate() => WalletKey.fromHex('0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d');
 
   factory WalletKey.fromHex(String privateKeyHex) => WalletKey._(EthPrivateKey.fromHex(privateKeyHex));
 

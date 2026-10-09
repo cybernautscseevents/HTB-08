@@ -214,14 +214,16 @@ class _PurposeRow extends ConsumerWidget {
                             child: Semantics(
                               label: t.purpose_switch_label(title, company),
                               // Only an active consent can be switched off; giving consent again goes through a new scan.
-                              child: Switch(
-                                value: state == ConsentState.active,
-                                onChanged: state == ConsentState.active
-                                    ? (on) {
-                                        if (!on) onWithdraw();
-                                      }
-                                    : null,
-                              ),
+                              child: state == ConsentState.active
+                                  ? OutlinedButton(
+                                      onPressed: onWithdraw,
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: SammatiColors.block,
+                                        side: const BorderSide(color: SammatiColors.block),
+                                      ),
+                                      child: Text(t.withdraw),
+                                    )
+                                  : const SizedBox.shrink(),
                             ),
                           ),
                       ],

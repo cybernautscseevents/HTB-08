@@ -16,6 +16,9 @@ class SecureStorageVault implements KeyVault {
 
   @override
   Future<void> write(String name, String value) => _storage.write(key: name, value: value);
+
+  @override
+  Future<void> deleteAll() => _storage.deleteAll();
 }
 
 class LocalAuthPresence implements UserPresence {

@@ -222,14 +222,17 @@ describe("the portal API for the web (trd.md §6.14)", () => {
     expect((await call("POST", "/portal/requests", { purposes: [], customerAlias: "asha01" })).status).toBe(400);
   });
 
-  it("returns only the consent rows of the customer id asked for, never the whole list", async () => {
+  it("returns only the asked-for customer's rows, needing both the id and the address, never the whole list", async () => {
     rows = [
       { principal: PRINCIPAL, customerAlias: "asha01", purposeCode: "credit_check", status: "Active", expiresAt: 4_000_000_000 },
       { principal: "0x" + "12".repeat(20), customerAlias: "someone_else", purposeCode: "credit_check", status: "Active", expiresAt: 4_000_000_000 },
     ];
-    const res = await call("GET", "/portal/consents?alias=asha01");
-    const body = (await res.json()) as { rows: Array<{ customerAlias: string }> };
-    expect(body.rows.map((r) => r.customerAlias)).toEqual(["asha01"]);
+    // Core gives every customer of a purpose the latest typed id, so the id alone must not be enough.
+    rows = rows.map((r) => ({ ...r, customerAlias: "asha01" }));
+    const res = await call("GET", `/portal/consents?alias=asha01&principal=${PRINCIPAL}`);
+    const body = (await res.json()) as { rows: Array<{ principal: string }> };
+    expect(body.rows.map((r) => r.principal.toLowerCase())).toEqual([PRINCIPAL.toLowerCase()]);
+    expect((await call("GET", "/portal/consents?alias=asha01")).status).toBe(400);
     expect((await call("GET", "/portal/consents")).status).toBe(400);
   });
 

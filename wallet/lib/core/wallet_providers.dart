@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'preferences.dart';
 import 'wallet_platform.dart';
 import 'wallet_service.dart';
 
@@ -23,6 +24,13 @@ class WalletAddressNotifier extends AsyncNotifier<String?> {
   Future<void> create({required String reason}) async {
     final address = await ref.read(walletServiceProvider).create(reason: reason);
     state = AsyncData(address);
+  }
+
+  Future<void> clearApp() async {
+    final prefs = ref.read(sharedPreferencesProvider);
+    await prefs.clear();
+    await ref.read(walletServiceProvider).vault.deleteAll();
+    state = const AsyncData(null);
   }
 }
 

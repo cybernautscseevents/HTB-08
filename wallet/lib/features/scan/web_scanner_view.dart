@@ -43,7 +43,7 @@ class _WebScannerViewState extends State<WebScannerView> {
           alignment: Alignment.bottomCenter,
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 130, top: 16),
               child: Material(
                 color: SammatiColors.surface,
                 borderRadius: BorderRadius.circular(SammatiRadius.row),

@@ -79,6 +79,32 @@ class MeScreen extends ConsumerWidget {
               ),
             ],
           ),
+          const SizedBox(height: 24),
+          _Group(
+            children: [
+              ListTile(
+                minTileHeight: 56,
+                leading: const Icon(Icons.logout, color: SammatiColors.block),
+                title: Text('Sign out', style: TextStyle(color: SammatiColors.block, fontWeight: FontWeight.bold)),
+                onTap: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (c) => AlertDialog(
+                      title: const Text('Sign out?'),
+                      content: const Text('This will erase your wallet and sign you out.'),
+                      actions: [
+                        TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
+                        TextButton(onPressed: () => Navigator.pop(c, true), child: const Text('Sign out', style: TextStyle(color: SammatiColors.block))),
+                      ],
+                    ),
+                  );
+                  if (confirm == true) {
+                    await ref.read(walletAddressProvider.notifier).clearApp();
+                  }
+                },
+              ),
+            ],
+          ),
         ],
       ),
     );

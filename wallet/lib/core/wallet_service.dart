@@ -14,6 +14,7 @@ import 'wallet_key.dart';
 abstract interface class KeyVault {
   Future<String?> read(String name);
   Future<void> write(String name, String value);
+  Future<void> deleteAll();
 }
 
 /// Proof that the person holding the phone is present (local_auth in the app).

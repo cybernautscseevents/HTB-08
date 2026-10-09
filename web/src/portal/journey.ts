@@ -72,8 +72,8 @@ export interface JourneyDeps {
   /** `POST /v1/fiduciaries/:fid/requests`. */
   createRequest(alias: string, purposes: string[]): Promise<{ requestId: string; qrPayload: unknown }>;
   /** `GET /v1/fiduciaries/:fid/consents`: the company's own table, which knows the alias of each customer. */
-  /** The rows of this customer id (a hosted company backend returns only those; Core returns all of the company's). */
-  consentRows(alias?: string): Promise<Array<{ principal: string; customerAlias: string | null }>>;
+  /** The rows of this customer (a hosted company backend returns only theirs; Core returns all of the company's). */
+  consentRows(alias?: string, principal?: string): Promise<Array<{ principal: string; customerAlias: string | null }>>;
   /** `POST <the company's backend>/customers/<alias>/apply` with the principal in the header. */
   apply(alias: string, principal: string): Promise<{ status: number; body: unknown }>;
   now(): number;
@@ -266,7 +266,7 @@ export class Journey {
       for (let attempt = 0; attempt < 4; attempt++) {
         let rows: Awaited<ReturnType<JourneyDeps["consentRows"]>> = [];
         try {
-          rows = await this.deps.consentRows(this.current.alias ?? undefined);
+          rows = await this.deps.consentRows(this.current.alias ?? undefined, principal);
         } catch {
           // try again below
         }

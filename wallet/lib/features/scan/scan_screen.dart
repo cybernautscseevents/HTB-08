@@ -1,9 +1,12 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../../app/router.dart';
 import '../../core/consent_providers.dart';
@@ -47,6 +50,27 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
     _handled = true;
     HapticFeedback.mediumImpact();
     context.pushReplacement(Routes.consentNotice, extra: payload);
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final file = await picker.pickImage(source: ImageSource.gallery);
+    if (file == null) return;
+
+    final controller = MobileScannerController();
+    final barcodeCapture = await controller.analyzeImage(file.path);
+    
+    if (barcodeCapture != null && barcodeCapture.barcodes.isNotEmpty) {
+      final code = barcodeCapture.barcodes.first.rawValue;
+      if (code != null) {
+        _onCode(code);
+      } else {
+        _reportInvalid("");
+      }
+    } else {
+      _reportInvalid("");
+    }
+    controller.dispose();
   }
 
   void _reportInvalid(String raw) {
@@ -111,10 +135,23 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
                   color: SammatiColors.ink.withValues(alpha: 0.85),
                   borderRadius: BorderRadius.circular(SammatiRadius.row),
                 ),
-                child: Text(
-                  '${t.scan_to_connect}\n${t.scan_hint}',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: SammatiColors.surface),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${t.scan_to_connect}\n${t.scan_hint}',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: SammatiColors.surface),
+                      ),
+                    ),
+                    if (!kIsWeb)
+                      IconButton(
+                        icon: const Icon(Icons.photo_library),
+                        color: SammatiColors.surface,
+                        onPressed: _pickImage,
+                        tooltip: 'Upload QR from Gallery',
+                      ),
+                  ],
                 ),
               ),
             ),
